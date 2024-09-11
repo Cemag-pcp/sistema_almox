@@ -1,0 +1,443 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <!-- Grupo de botões de rádio -->
+    <div class="btn-group mb-4" role="group" aria-label="Basic radio toggle button group">
+        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" data-bs-target="#collapseRequisicao" checked>
+        <label class="btn btn-outline-primary" for="btnradio1">Formulário de Requisição</label>
+
+        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" data-bs-target="#collapseTransferencia">
+        <label class="btn btn-outline-primary" for="btnradio2">Formulário de Transferência</label>
+    </div>
+
+    <!-- Formulários em collapse -->
+    <div class="accordion" id="formAccordion">
+        
+        <!-- Formulário de Requisição -->
+        <div id="collapseRequisicao" class="collapse show" data-bs-parent="#formAccordion">
+            <div class="card card-header">
+                <div class="d-flex justify-content-between">
+                    <h5>Formulário de Requisição</h5>
+                    <div>
+                        <button type="button" class="badge rounded-pill btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#adicionarNovoItem" 
+                            data-tipo-solicitacao="requisicao">Não encontrou o item?</button>
+                        <button type="button" class="badge rounded-pill btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#adicionarNovaMatricula" 
+                            data-tipo-solicitacao="requisicao">Não encontrou sua matrícula?</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-body">
+                <form id="formRequisicao" method="post" class="container">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="requisicao">
+                    
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-6">
+                            <label for="id_requisicao-funcionario" class="form-label">Matrícula:</label>
+                            <select id="id_requisicao-funcionario" class="form-select js-example-basic-single" name="requisicao-funcionario" required>
+                                <option value="">Selecione...</option>
+                                {% for funcionario in funcionarios %}
+                                <option value="{{ funcionario.id }}">{{ funcionario.matricula }} - {{ funcionario.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" id="id_requisicao-cc" name="requisicao-cc" required>
+                    
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-6 col-lg-4">
+                            <label for="id_requisicao-item" class="form-label">Item:</label>
+                            <select id="id_requisicao-item" class="form-select js-example-basic-single" name="requisicao-item" required>
+                                <option value="">Selecione...</option>
+                                {% for item in itens %}
+                                <option value="{{ item.id }}">{{ item.codigo }} - {{ item.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label for="id_requisicao-classe_requisicao" class="form-label">Classe de Requisição:</label>
+                            <select class="form-select" name="requisicao-classe_requisicao" id="id_requisicao-classe_requisicao" required>
+                                <option value="" selected>---------</option>
+                                <option value="Req p Consumo">Consumo</option>
+                                <option value="Req p Produção">Produção</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-6 col-lg-4">
+                            <label for="id_requisicao-quantidade" class="form-label">Quantidade:</label>
+                            <input type="number" class="form-control" id="id_requisicao-quantidade" name="requisicao-quantidade" required>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label for="unidade" class="form-label">Unidade:</label>
+                            <input type="text" class="form-control" id="unidade" name="unidade" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-8">
+                            <label for="id_requisicao-obs" class="form-label">Obs:</label>
+                            <textarea class="form-control" name="requisicao-obs" rows="3" id="id_requisicao-obs"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 text-end">
+                            <button type="submit" class="btn btn-success">Enviar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Formulário de Transferência -->
+        <div id="collapseTransferencia" class="collapse" data-bs-parent="#formAccordion">
+            <div class="card card-header">
+                <div class="d-flex justify-content-between">
+                    <h5>Formulário de Transferência</h5>
+                    <div>
+                        <button type="button" class="badge rounded-pill btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#adicionarNovoItem" 
+                            data-tipo-solicitacao="transferencia">Não encontrou o item?</button>
+                        <button type="button" class="badge rounded-pill btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#adicionarNovaMatricula" 
+                            data-tipo-solicitacao="transferencia">Não encontrou sua matrícula?</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card card-body">
+                <form id="formTransferencia" method="post" class="container">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="transferencia">
+                
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-6">
+                            <label for="id_transferencia-funcionario" class="form-label">Matrícula:</label>
+                            <select id="id_transferencia-funcionario" class="form-select js-example-basic-single" name="transferencia-funcionario" required>
+                                <option value="">Selecione...</option>
+                                {% for funcionario in funcionarios %}
+                                <option value="{{ funcionario.id }}">{{ funcionario.matricula }} - {{ funcionario.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-6 col-lg-4">
+                            <label for="id_transferencia-deposito_destino" class="form-label">Depósito Destino:</label>
+                            <select id="id_transferencia-deposito_destino" class="form-select js-example-basic-single" name="transferencia-deposito_destino" required>
+                                <option value="">Selecione...</option>
+                                {% for deposito in depositos %}
+                                    <option value="{{ deposito.id }}">{{ deposito.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <label for="id_transferencia-item" class="form-label">Item:</label>
+                            <select id="id_transferencia-item" class="form-select js-example-basic-single" name="transferencia-item" required>
+                                <option value="">Selecione...</option>
+                                {% for item in itens_transferencia %}
+                                <option value="{{ item.id }}">{{ item.codigo }} - {{ item.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-6 col-lg-4">
+                            <label for="id_transferencia-quantidade" class="form-label">Quantidade:</label>
+                            <input type="number" class="form-control" id="id_transferencia-quantidade" name="transferencia-quantidade" required>
+                        </div>
+                    </div>
+                
+                    <div class="row mb-3 justify-content-center">
+                        <div class="col-md-8">
+                            <label for="id_transferencia-obs" class="form-label">Obs:</label>
+                            <textarea class="form-control" name="transferencia-obs" id="id_transferencia-obs" rows="3"></textarea>
+                        </div>
+                    </div>
+                
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 text-end">
+                            <button type="submit" class="btn btn-success">Enviar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal para adicionar nova matricula -->
+
+<div class="modal fade" id="adicionarNovaMatricula" tabindex="-1" aria-labelledby="adicionarNovaMatriculaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="adicionarNovaMatriculaLabel">Solicitação para adicionar nova matrícula</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" id="formCadastroMatricula" action="{% url 'cadastro_nova_matricula' %}">
+            {% csrf_token %}
+            <input type="hidden" name="tipo_solicitacao" id="tipoSolicitacao">
+            <div class="mb-3">
+                <label for="id-matricula-solicitante">Matrícula</label>
+                <input type="text" id="id-matricula-solicitante" name="id-matricula-solicitante" class="form-control" placeholder="Digite sua matrícula" required>
+            </div>
+            <div class="mb-3">
+                <label for="id-nome-solicitante">Nome</label>
+                <input type="text" id="id-nome-solicitante" name="id-nome-solicitante" class="form-control" placeholder="Digite seu nome" required>
+            </div>
+            <div class="mb-3">
+                <label for="id-ccusto-solicitante" class="form-label">Centro de custo:</label>
+                <select id="id-ccusto-solicitante" class="form-select js-example-basic-single" name="id-ccusto-solicitante" required>
+                    <option value="">Selecione...</option>
+                    {% for cc in centro_custo %}
+                        <option value="{{ cc.id }}">{{ cc.codigo }} - {{ cc.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="text-end">
+                <button type="submit" name="novaMatricula" class="badge btn btn-sm btn-success">Solicitar</button>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para adicionar novo item -->
+
+<div class="modal fade" id="adicionarNovoItem" tabindex="-1" aria-labelledby="adicionarNovoItemLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="adicionarNovoItemLabel">Solicitação para adicionar novo item</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="post" id="formCadastroNovoItem" action="{% url 'cadastro_novo_item' %}">
+            {% csrf_token %}
+            <input type="hidden" name="tipo_solicitacao" id="tipoSolicitacao">
+            <div class="mb-3">
+                <label for="id-funcionario-cadastro-item" class="form-label">Matrícula:</label>
+                <select id="id-funcionario-cadastro-item" class="form-select js-example-basic-single" name="id-funcionario-cadastro-item" required>
+                    <option value="">Selecione...</option>
+                    {% for funcionario in funcionarios %}
+                    <option value="{{ funcionario.id }}">{{ funcionario.matricula }} - {{ funcionario.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="id-codigo-item">Código</label>
+                <input name="id-codigo-item" type="text" id="id-codigo-item" class="form-control" placeholder="Digite o código do item">
+            </div>
+            <div class="mb-3">
+                <label for="id-descricao-item">Descrição</label>
+                <input type="text" id="id-descricao-item" name="id-descricao-item" class="form-control" placeholder="Digite a descrição do item">
+            </div>
+            <!-- Campo para 'transferencia' -->
+            <div id="campo-transferencia" class="mb-3 campo-alternativo" style="display: none;">
+                <label for="id-cadastrar-deposito" class="form-label">Depósito Destino:</label>
+                <select id="id-cadastrar-deposito" class="form-select js-example-basic-single" name="id-cadastrar-deposito" required>
+                    <option value="">Selecione...</option>
+                    {% for deposito in depositos %}
+                        <option value="{{ deposito.id }}">{{ deposito.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="id-quantidade-solicitante">Quantidade</label>
+                <input class="form-control" type="number" id="id-quantidade-solicitante" name="id-quantidade-solicitante" required>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="badge btn btn-sm btn-success">Solicitar</button>
+            </div>
+            </form>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Rádio para navegar entre os forms -->
+
+<script>
+    document.querySelectorAll('input[name="btnradio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            let target = document.querySelector(this.dataset.bsTarget);
+            document.querySelectorAll('.accordion .collapse').forEach(collapse => {
+                collapse.classList.remove('show');
+            });
+            target.classList.add('show');
+        });
+    });
+</script>
+
+<!-- Funções para chamar centro de custo e unidade -->
+
+<script>
+    // Função para fazer requisições AJAX
+    function ajax(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                callback(JSON.parse(xhr.responseText));
+            }
+        };
+        xhr.onerror = function() {
+            console.error('Erro na requisição AJAX.');
+        };
+        xhr.send();
+    }
+
+    // Função para inicializar select2 e adicionar evento change
+    function initSelect2(selectElementId, ajaxUrl, updateElementId, dataField) {
+        var selectElement = document.getElementById(selectElementId);
+        if (selectElement) {
+            $(selectElement).select2({
+                placeholder: "Selecione...",
+                allowClear: true,
+                dropdownCssClass: 'form-control', 
+                containerCssClass: 'form-control',
+                width: '100%'
+            });
+
+            $(selectElement).on('change', function() {
+                var value = $(this).val();
+                if (value) {
+                    ajax(ajaxUrl + encodeURIComponent(value), function(data) {
+                        var updateElement = document.getElementById(updateElementId);
+                        if (data[dataField]) {
+                            updateElement.value = data[dataField];
+                        } else {
+                            updateElement.value = '';
+                        }
+                    });
+                } else {
+                    document.getElementById(updateElementId).value = '';
+                }
+            });
+        }
+    }
+
+    // Inicialização de todos os campos select2 e AJAX após o DOM estar pronto
+    document.addEventListener('DOMContentLoaded', function() {
+        // Requisição - Matrícula (Centro de Custo)
+        initSelect2(
+            'id_requisicao-funcionario', 
+            '{% url "get_cc_by_matricula" %}?matricula=',
+            'id_requisicao-cc', 
+            'cc'
+        );
+
+        // Requisição - Item (Unidade)
+        initSelect2(
+            'id_requisicao-item', 
+            '{% url "get_unidade_by_item" %}?item_id=', 
+            'unidade', 
+            'unidade'
+        );
+
+        // Transferência - Funcionario
+        initSelect2('id_transferencia-funcionario', '', '', '');
+
+        // Transferência - Depósito Destino
+        initSelect2('id_transferencia-deposito_destino', '', '', '');
+
+        // Transferência - Item
+        initSelect2('id_transferencia-item', '', '', '');
+
+    });
+</script>
+
+<!-- Carregar modal de solicitação de matricula -->
+
+<script>
+
+    $(document).ready(function() {
+        function initSelect2_(selector) {
+            $(selector).select2({
+                placeholder: 'Selecione...',
+                dropdownParent: $('#adicionarNovoItem'),
+                allowClear: true,
+                dropdownCssClass: 'form-control', 
+                containerCssClass: 'form-control',
+                width: '100%'
+            });
+
+            // Ajustando o z-index
+            $(selector).on('select2:open', function() {
+                $('.select2-dropdown').css('z-index', 9999);
+            });
+        }
+
+        // Inicializa os campos Select2
+        initSelect2_('#id-cadastrar-deposito');
+        initSelect2_('#id-funcionario-cadastro-item');
+    });
+
+    var adicionarMatriculaModal = document.getElementById('adicionarNovaMatricula');
+    adicionarMatriculaModal.addEventListener('show.bs.modal', function (event) {
+
+        var button = event.relatedTarget;
+        var tipoSolicitacao = button.getAttribute('data-tipo-solicitacao');
+
+        // Atualiza os campos do formulário no modal
+        var tipoSolicitacaoInput = adicionarMatriculaModal.querySelector('#tipoSolicitacao');
+
+        tipoSolicitacaoInput.value = tipoSolicitacao;
+
+    });
+
+    var adicionarNovoItemModal = document.getElementById('adicionarNovoItem');
+    adicionarNovoItemModal.addEventListener('show.bs.modal', function (event) {
+
+        var button = event.relatedTarget;
+        var tipoSolicitacao = button.getAttribute('data-tipo-solicitacao');
+
+        // Atualiza os campos do formulário no modal
+        var tipoSolicitacaoInput = adicionarNovoItemModal.querySelector('#tipoSolicitacao');
+        tipoSolicitacaoInput.value = tipoSolicitacao;
+
+        document.querySelectorAll('.campo-alternativo').forEach(function(campo) {
+            campo.style.display = 'none';  // Esconde todos os campos alternativos
+            campo.querySelectorAll('input, select').forEach(function(input) {
+                input.removeAttribute('required');  // Remove o atributo required dos campos escondidos
+            });
+        });
+
+        if (tipoSolicitacao === 'transferencia') {
+            var campoTransferencia = document.getElementById('campo-transferencia');
+            campoTransferencia.style.display = 'block';
+            campoTransferencia.querySelector('select').setAttribute('required', 'required');  // Adiciona o atributo required ao campo visível
+        }
+    });
+
+
+</script>
+
+<!-- Carregar modal de solicitação de novo item -->
+
+<script>
+    document.getElementById('formCadastroNovoItem').addEventListener('submit', function(event) {
+        var codigo = document.getElementById('id-codigo-item').value.trim();
+        var descricao = document.getElementById('id-descricao-item').value.trim();
+
+        if (!codigo && !descricao) {
+            event.preventDefault();
+            alert('Por favor, preencha o Código ou a Descrição.');
+        }
+
+        console.log('Cadastro enviado com sucesso');
+
+    });
+</script>
+
+{% endblock %}
