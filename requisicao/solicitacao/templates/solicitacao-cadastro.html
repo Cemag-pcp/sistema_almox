@@ -31,9 +31,9 @@
                     <button type="button" class="badge rounded-pill btn btn-sm btn-primary"  onclick="return confirm('Tem certeza que deseja aprovar esta solicitação?');">Aprovar</button>
                     <input type="hidden" class="tipo-cadastro" name="tipo_cadastro" value="">
                     <input type="hidden" class="id" name="id" value="">
-                    <button class="badge rounded-pill btn btn-sm btn-danger" type="submit" name="apagar" data-tipo-cadastro="item" data-id="{{item.id}}" onclick="prepararApagar(this, 'form-solicitacao-item')">Apagar</button>
+                    <button class="badge rounded-pill btn btn-sm btn-danger" type="submit" name="apagar" data-tipo-cadastro="item" data-id="{{item.id}}" onclick="return prepararApagar(this, 'form-solicitacao-item');">Apagar</button>
                     <button type="button" class="badge rounded-pill btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarModal">Editar</button>
-                    </form>
+                </form>
             </td>
         </tr>
         {% endfor %}
@@ -56,10 +56,10 @@
             <td>
                 <form method="post" id="form-solicitacao-funcionario">
                     {% csrf_token %}
-                    <button type="button" class="badge rounded-pill btn btn-sm btn-primary"  onclick="return confirm('Tem certeza que deseja aprovar esta solicitação?');">Aprovar</button>
+                    <button type="button" class="badge rounded-pill btn btn-sm btn-primary" onclick="return confirm('Tem certeza que deseja aprovar esta solicitação?');">Aprovar</button>
                     <input type="hidden" class="tipo-cadastro" name="tipo_cadastro" value="">
                     <input type="hidden" class="id" name="id" value="">
-                    <button class="badge rounded-pill btn btn-sm btn-danger" type="submit" name="apagar" data-tipo-cadastro="funcionario" data-id="{{matricula.id}}" onclick="prepararApagar(this, 'form-solicitacao-funcionario')">Apagar</button>
+                    <button class="badge rounded-pill btn btn-sm btn-danger" type="submit" name="apagar" data-tipo-cadastro="funcionario" data-id="{{matricula.id}}" onclick="return prepararApagar(this, 'form-solicitacao-funcionario');">Apagar</button>
                     <button type="button" class="badge rounded-pill btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarModal">Editar</button>
                 </form>
             </td>
@@ -110,12 +110,13 @@
 <script>
     function prepararApagar(button, formId) {
         var tipoCadastro = button.getAttribute("data-tipo-cadastro");
-        var id = button.getAttribute('data-id')
+        var id = button.getAttribute('data-id');
 
         var form = document.getElementById(formId);
         form.querySelector('.tipo-cadastro').value = tipoCadastro;
         form.querySelector('.id').value = id;
 
+        // Exibe a confirmação e retorna true/false para continuar ou cancelar o envio
         return confirm('Tem certeza que deseja apagar esta solicitação?');
     }
 </script>

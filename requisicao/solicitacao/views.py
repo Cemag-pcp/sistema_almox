@@ -273,15 +273,20 @@ def gerir_solicitacoes(request):
 
     cadastro_item = SolicitacaoCadastroItem.objects.all()
 
+    print(request.POST)
+
     if "apagar" in request.POST:
 
         tipo_cadastro = request.POST.get("tipo_cadastro")
         solicitacao_id = request.POST.get('id')
+        
+        print(tipo_cadastro)
+        print(solicitacao_id)
 
-        if tipo_cadastro == 'item':
-            SolicitacaoCadastroItem.objects.filter(id=solicitacao_id).delete()
-        else:
-            SolicitacaoNovaMatricula.objects.filter(id=solicitacao_id).delete()
+        # if tipo_cadastro == 'item':
+        #     SolicitacaoCadastroItem.objects.filter(id=solicitacao_id).delete()
+        # else:
+        #     SolicitacaoNovaMatricula.objects.filter(id=solicitacao_id).delete()
 
         return redirect("gerir_solicitacoes")
 
