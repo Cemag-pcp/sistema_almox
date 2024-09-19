@@ -57,6 +57,7 @@
                             </select>
                         </div>
                         <div class="col-md-6 col-lg-4">
+                            {{form_requisicao.label}}
                             <label for="id_requisicao-classe_requisicao" class="form-label">Classe de Requisição:</label>
                             <select class="form-select" name="requisicao-classe_requisicao" id="id_requisicao-classe_requisicao" required>
                                 <option value="" selected>---------</option>
@@ -210,7 +211,6 @@
     </div>
 </div>
 
-
 <!-- Modal para adicionar novo item -->
 
 <div class="modal fade" id="adicionarNovoItem" tabindex="-1" aria-labelledby="adicionarNovoItemLabel" aria-hidden="true">
@@ -263,7 +263,6 @@
         </div>
     </div>
 </div>
-
 
 <!-- Rádio para navegar entre os forms -->
 
@@ -343,6 +342,14 @@
             '{% url "get_unidade_by_item" %}?item_id=', 
             'unidade', 
             'unidade'
+        );
+
+        // Requisição - classe
+        initSelect2(
+            'id_requisicao-item',
+            '{% url "ajax_carregar_classes" %}?item_id=',
+            'id_requisicao-classe_requisicao',
+            'classes'
         );
 
         // Transferência - Funcionario
@@ -437,6 +444,28 @@
 
         console.log('Cadastro enviado com sucesso');
 
+    });
+</script>
+
+<!-- Carregar classes para cada item -->
+
+<script>
+    document.getElementById('id_requisicao-item').addEventListener('change', function () {
+        var itemId = this.value;
+        var url = '{% url "ajax_carregar_classes" %}';
+        fetch(`${url}?item=${itemId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                var classeSelect = document.getElementById('id_requisicao-classe_requisicao');
+                classeSelect.options.length = 0;
+                data.forEach(function(classe) {
+                    var option = document.createElement('option');
+                    option.value = classe.id;
+                    option.text = classe.nome;
+                    classeSelect.add(option);
+                });
+            });
     });
 </script>
 

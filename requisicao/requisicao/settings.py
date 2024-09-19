@@ -28,10 +28,10 @@ SECRET_KEY = 'django-insecure-+yaq+q8f)wb=@blo8uy^^@pg0u#-qzdyfd9is5tl38i7@8zhq+
 DEBUG = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://6770-177-19-132-134.ngrok-free.app'
+    'https://2252-177-19-132-134.ngrok-free.app'
 ]
 
-ALLOWED_HOSTS = ['6770-177-19-132-134.ngrok-free.app', '127.0.0.1']
+ALLOWED_HOSTS = ['2252-177-19-132-134.ngrok-free.app', '127.0.0.1',]
 
 # Application definition
 
@@ -135,3 +135,7 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGOUT_REDIRECT_URL = '/home/login'
+LOGIN_URL = '/home/login/'
+

@@ -3,8 +3,10 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
+from django.db import IntegrityError
+from django.contrib.auth.decorators import login_required
 
-from .forms import SolicitacaoRequisicaoForm, SolicitacaoTransferenciaForm
+from .forms import *
 from .models import *
 from cadastro.models import Cc
 
@@ -60,6 +62,13 @@ def get_unidade_by_item(request):
         return JsonResponse({'unidade': unidade})
     return JsonResponse({'error': 'Item não encontrado'}, status=404)
 
+def carregar_classes(request):
+    item_id = request.GET.get('item_id')
+    classes = ClasseRequisicao.objects.filter(itenssolicitacao=item_id)
+    print(classes)
+    return JsonResponse(list(classes.values('id', 'nome')), safe=False)
+
+@login_required    
 def historico_requisicao(request):
 
     return render(request, "historico-requisicao.html")
@@ -135,7 +144,8 @@ def solicitacao_data_requisicao(request):
             'recordsFiltered': paginator.count,
             'data': data,
         })
-    
+
+@login_required    
 def historico_transferencia (request):
 
     return render(request, "historico-transferencia.html")
@@ -267,32 +277,171 @@ def cadastro_nova_matricula(request):
 
     return redirect('criar_solicitacoes')
 
+@login_required  
 def gerir_solicitacoes(request):
 
-    cadastro_matricula = SolicitacaoNovaMatricula.objects.all()
+    cadastro_matricula = SolicitacaoNovaMatricula.objects.filter(aprovado=False)
+    cadastro_item = SolicitacaoCadastroItem.objects.filter(aprovado=False)
+    
+    tipo_cadastro = request.POST.get("tipo_cadastro")
+    solicitacao_id = request.POST.get('id')
+    opcao = request.POST.get('opcao')
 
-    cadastro_item = SolicitacaoCadastroItem.objects.all()
+    mensagem_erro = None  # Variável para armazenar a mensagem de erro
+    
+    if "add" in request.POST:
+        
+        if tipo_cadastro == 'item':
+            
+            solicitacao = get_object_or_404(SolicitacaoCadastroItem, pk=solicitacao_id)
+            solicitacao.aprovado = True
+            solicitacao.data_aprovacao = datetime.datetime.now()
+            solicitacao.save()
+            
+            if solicitacao.tipo_solicitacao == 'requisicao':
+                
+                try:
+                
+                    # Cadastrando novo item
+                    novo_item = ItensSolicitacao.objects.create(
+                        codigo = solicitacao.codigo,
+                        nome = solicitacao.descricao,
+                        classe_requisicao = opcao
+                    )
+                    novo_item.save()
+                    
+                    # Criando solicitação
+                    funcionario_object = get_object_or_404(Funcionario, pk=solicitacao.funcionario.pk)
+                    cc_object = funcionario_object.cc  # Aqui você acessa diretamente o 'cc' do funcionário
 
-    print(request.POST)
+                    nova_solicitacao = SolicitacaoRequisicao.objects.create(
+                        classe_requisicao=opcao,
+                        quantidade=solicitacao.quantidade,
+                        cc=cc_object,
+                        funcionario=solicitacao.funcionario,
+                        item=novo_item,
+                    )
+                    nova_solicitacao.save()
+
+                except IntegrityError:
+                    # Captura o erro de integridade (violação da chave UNIQUE)
+                    mensagem_erro = "Erro: O código do item já existe."
+                
+            else:
+                
+                try:
+                
+                    # Cadastrando novo item
+                    novo_item = ItensTransferencia.objects.create(
+                        codigo = solicitacao.codigo,
+                        nome = solicitacao.descricao,
+                    )
+                    novo_item.save()
+                    
+                    # Criando solicitação
+                    funcionario_object = get_object_or_404(Funcionario, pk=solicitacao.funcionario.pk)
+                    cc_object = funcionario_object.cc  # Aqui você acessa diretamente o 'cc' do funcionário
+
+                    nova_solicitacao = SolicitacaoTransferencia.objects.create(
+                        quantidade=solicitacao.quantidade,
+                        deposito_destino=solicitacao.deposito_destino,
+                        funcionario=solicitacao.funcionario,
+                        item=novo_item,
+                    )
+                    nova_solicitacao.save()
+
+                except IntegrityError:
+                    # Captura o erro de integridade (violação da chave UNIQUE)
+                    mensagem_erro = "Erro: O código do item já existe."
+                    
+        else:
+            
+            solicitacao = get_object_or_404(SolicitacaoNovaMatricula, pk=solicitacao_id)
+            solicitacao.aprovado = True
+            solicitacao.data_aprovacao = datetime.datetime.now()
+            solicitacao.save()
+            
+            try:
+                
+                # Cadastrando nova matricula
+                cc_object = get_object_or_404(Cc, nome=solicitacao.cc)
+                novo_item = Funcionario.objects.create(
+                    matricula = solicitacao.matricula,
+                    nome = solicitacao.nome,
+                    cc = cc_object
+                )
+                novo_item.save()
+            
+            except IntegrityError:
+                mensagem_erro = "Erro: Matrícula já cadastrada"
 
     if "apagar" in request.POST:
 
-        tipo_cadastro = request.POST.get("tipo_cadastro")
-        solicitacao_id = request.POST.get('id')
-        
-        print(tipo_cadastro)
-        print(solicitacao_id)
-
-        # if tipo_cadastro == 'item':
-        #     SolicitacaoCadastroItem.objects.filter(id=solicitacao_id).delete()
-        # else:
-        #     SolicitacaoNovaMatricula.objects.filter(id=solicitacao_id).delete()
+        if tipo_cadastro == 'item':
+            SolicitacaoCadastroItem.objects.filter(id=solicitacao_id).delete()
+        else:
+            SolicitacaoNovaMatricula.objects.filter(id=solicitacao_id).delete()
 
         return redirect("gerir_solicitacoes")
 
     context = {
         'cadastro_matricula': cadastro_matricula,
-        'cadastro_item': cadastro_item
+        'cadastro_item': cadastro_item,
+        'mensagem_erro': mensagem_erro,  # Adiciona a mensagem de erro ao contexto
+
     }
 
     return render(request, 'solicitacao-cadastro.html', context)
+
+def edit_solicitacao_cadastro_item(request,pk,tipo_cadastro):
+    
+    item=get_object_or_404(SolicitacaoCadastroItem,pk=pk)
+    
+    if request.method == 'POST':
+        
+        if tipo_cadastro == 'requisicao':
+            
+            form = SolicitacaoCadastroItemRequisicaoForm(request.POST, instance=item)
+            
+            if form.is_valid():
+                
+                form.save()
+                
+                return redirect('gerir_solicitacoes')
+
+        else:
+            form = SolicitacaoCadastroItemTransferenciaForm(request.POST, instance=item)
+            
+            if form.is_valid():
+                
+                form.save()
+                
+                return redirect('gerir_solicitacoes')
+
+    else:
+        
+        if tipo_cadastro == 'requisicao':
+            form=SolicitacaoCadastroItemRequisicaoForm(instance=item)
+        else:
+            form=SolicitacaoCadastroItemTransferenciaForm(instance=item)
+        
+    return render(request,'item/edit-solicitacao-cadastro.html', {'form':form})
+
+def edit_solicitacao_cadastro_matricula(request,pk):
+    
+    matricula=get_object_or_404(SolicitacaoNovaMatricula,pk=pk)
+    
+    if request.method == 'POST':
+        
+        form = SolicitacaoCadastroMatriculaForm(request.POST, instance=matricula)
+        
+        if form.is_valid():
+            
+            form.save()
+            
+            return redirect('gerir_solicitacoes')
+    else:
+        
+        form = SolicitacaoCadastroMatriculaForm(instance=matricula)
+        
+    return render(request,'matricula/edit-matricula-cadastro.html', {'form':form})

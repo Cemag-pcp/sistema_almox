@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from django.http import HttpResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LogoutView
 
 from solicitacao.models import SolicitacaoRequisicao, SolicitacaoTransferencia
 from solicitacao.forms import SolicitacaoRequisicaoForm, SolicitacaoTransferenciaForm
@@ -8,6 +11,7 @@ from cadastro.models import Operador, Funcionario, ItensSolicitacao, ItensTransf
 
 from datetime import datetime
 
+@login_required
 def lista_solicitacoes(request):
     requisicoes = SolicitacaoRequisicao.objects.filter(entregue_por=None)
     transferencias = SolicitacaoTransferencia.objects.filter(entregue_por=None)
@@ -120,3 +124,27 @@ def editar_transferencia(request, id):
         form = SolicitacaoTransferenciaForm(instance=transferencia)
 
     return render(request, 'home/editar_solicitacao.html', {'form': form})
+
+def user_login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            # Autentica o usuário
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                # Faz o login do usuário
+                login(request, user)
+                return redirect('lista_solicitacoes')  # Redireciona após o login bem-sucedido
+            else:
+                # Se a autenticação falhar, você pode adicionar uma mensagem de erro personalizada
+                form.add_error(None, "Usuário ou senha inválidos")
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'login/login.html', {'form': form})
+
+class CustomLogoutView(LogoutView):
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)

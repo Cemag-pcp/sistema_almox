@@ -14,27 +14,28 @@ class Cc(models.Model):
 class Funcionario(models.Model):
 
     nome = models.CharField(max_length=100)
-    matricula = models.CharField(max_length=5)
+    matricula = models.CharField(max_length=5, unique=True)
     cc = models.ForeignKey(Cc, on_delete=models.CASCADE, related_name='funcionario_cc')
 
     def __str__(self):
 
         return f'{self.nome} - {self.matricula} - {self.cc.nome}'
 
-class ItensSolicitacao(models.Model):
+class ClasseRequisicao(models.Model):
+    nome = models.CharField(max_length=20, unique=True)
 
-    CLASSE_CHOICES = (('Req p Consumo', 'Consumo'),
-                      ('Req p Produção', 'Produção'))
-    
+    def __str__(self):
+        return self.nome
+
+class ItensSolicitacao(models.Model):
     codigo = models.CharField(max_length=20, unique=True)
     nome = models.CharField(max_length=100)
-    classe_requisicao = models.CharField(max_length=20, choices=CLASSE_CHOICES)
+    classe_requisicao = models.ManyToManyField(ClasseRequisicao)
     unidade = models.CharField(max_length=10)
 
     def __str__(self):
-
         return f'{self.codigo} - {self.nome}'
-    
+        
 class ItensTransferencia(models.Model):
 
     codigo = models.CharField(max_length=20, unique=True)

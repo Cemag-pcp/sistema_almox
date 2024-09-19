@@ -5,14 +5,10 @@ from cadastro.models import *
 import datetime
 
 class SolicitacaoRequisicao(models.Model):
-
-    CLASSE_CHOICES = (('Req p Consumo', 'Consumo'),
-                      ('Req p Produção', 'Produção'))
-
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='requisicao_funcionario')
     cc = models.ForeignKey(Cc, on_delete=models.CASCADE, related_name='requisicao_cc')
     item = models.ForeignKey(ItensSolicitacao, on_delete=models.CASCADE, related_name='requisicao_itens')
-    classe_requisicao = models.CharField(max_length=20, choices=CLASSE_CHOICES)
+    classe_requisicao = models.ForeignKey(ClasseRequisicao, on_delete=models.CASCADE, related_name='requisicao_classe')
     quantidade = models.IntegerField()
     obs = models.TextField(blank=True, null=True)
     data_solicitacao = models.DateTimeField(auto_now_add=True)
@@ -21,9 +17,8 @@ class SolicitacaoRequisicao(models.Model):
     rpa = models.TextField(null=True, blank=True)
 
     def __str__(self):
-
-        return f'{self.funcionario} - {self.item}'
-
+        return f'{self.funcionario} - {self.item} - {self.classe_requisicao}'
+    
 class SolicitacaoTransferencia(models.Model):
 
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='transferencia_funcionario')
