@@ -5,15 +5,11 @@ from cadastro.models import *
 import datetime
 
 class SolicitacaoRequisicao(models.Model):
-
-    CLASSE_CHOICES = (('Req p Consumo', 'Consumo'),
-                      ('Req p Produção', 'Produção'))
-
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='requisicao_funcionario')
     cc = models.ForeignKey(Cc, on_delete=models.CASCADE, related_name='requisicao_cc')
     item = models.ForeignKey(ItensSolicitacao, on_delete=models.CASCADE, related_name='requisicao_itens')
-    classe_requisicao = models.CharField(max_length=20, choices=CLASSE_CHOICES)
-    quantidade = models.IntegerField()
+    classe_requisicao = models.ForeignKey(ClasseRequisicao, on_delete=models.CASCADE, related_name='requisicao_classe')
+    quantidade = models.FloatField()
     obs = models.TextField(blank=True, null=True)
     data_solicitacao = models.DateTimeField(auto_now_add=True)
     entregue_por = models.ForeignKey(Operador, on_delete=models.CASCADE, related_name='requisicao_operador', null=True, blank=True)
@@ -21,15 +17,14 @@ class SolicitacaoRequisicao(models.Model):
     rpa = models.TextField(null=True, blank=True)
 
     def __str__(self):
-
-        return f'{self.funcionario} - {self.item}'
-
+        return f'{self.funcionario} - {self.item} - {self.classe_requisicao}'
+    
 class SolicitacaoTransferencia(models.Model):
 
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='transferencia_funcionario')
     deposito_destino = models.ForeignKey(DepositoDestino, on_delete=models.CASCADE, related_name='transferencia_deposito_destino')
     item = models.ForeignKey(ItensTransferencia, on_delete=models.CASCADE, related_name='transferencia_itens')
-    quantidade = models.IntegerField()
+    quantidade = models.FloatField()
     obs = models.TextField(blank=True, null=True)
     data_solicitacao = models.DateTimeField(auto_now_add=True)
     entregue_por = models.ForeignKey(Operador, on_delete=models.CASCADE, related_name='transferencia_operador', null=True, blank=True)
@@ -48,7 +43,7 @@ class SolicitacaoCadastroItem(models.Model):
     descricao = models.CharField(max_length=100, blank=True, null=True)
     quantidade = models.IntegerField()
     deposito_destino = models.ForeignKey(DepositoDestino, on_delete=models.CASCADE, related_name='solicitacao_deposito_destino', null=True, blank=True)
-
+    cc = models.ForeignKey(Cc, on_delete=models.CASCADE, related_name='cadastro_cc', blank=True, null=True)
     aprovado = models.BooleanField(default=False)
     data_aprovacao = models.DateTimeField(blank=True, null=True)
 

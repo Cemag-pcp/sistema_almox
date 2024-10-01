@@ -28,10 +28,7 @@
                         data-solicitacao-id="{{ requisicao.id }}" data-tipo-solicitacao="requisicao">Entregar</button>
                     <button class="badge rounded-pill btn btn-sm btn-danger" type="submit" name="apagar" onclick="return confirm('Tem certeza que deseja apagar esta solicitação?');">Apagar</button>
                     <!-- <button class="badge rounded-pill btn btn-sm btn-warning" type="submit" name="editar">Editar</button> -->
-                    <button type="button" class="badge rounded-pill btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarModal"
-                        data-solicitacao-id="{{ requisicao.id }}" data-tipo-solicitacao="requisicao"
-                        data-funcionario="{{ requisicao.funcionario.matricula }} - {{ requisicao.funcionario.nome }}" data-item="{{ requisicao.item }}"
-                        data-quantidade="{{ requisicao.quantidade }}">Editar</button>
+                    <a type="button" class="badge rounded-pill btn btn-sm btn-warning" href="{% url 'edit_solicitacao' 'requisicao' requisicao.id %}">Editar</a>
                 </form>
             </td>
         </tr>
@@ -65,10 +62,7 @@
                     <button type="button" class="badge rounded-pill btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#entregaModal"
                         data-solicitacao-id="{{ transferencia.id }}" data-tipo-solicitacao="transferencia">Entregar</button>
                     <button class="badge rounded-pill btn btn-sm btn-danger" type="submit" name="apagar" onclick="return confirm('Tem certeza que deseja apagar esta solicitação?');">Apagar</button>
-                    <button type="button" class="badge rounded-pill btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editarModal"
-                        data-solicitacao-id="{{ transferencia.id }}" data-tipo-solicitacao="transferencia"
-                        data-funcionario="{{ transferencia.funcionario.matricula }} - {{ transferencia.funcionario.nome }}" data-item="{{ transferencia.item }}"
-                        data-quantidade="{{ transferencia.quantidade }}">Editar</button>
+                    <a type="button" class="badge rounded-pill btn btn-sm btn-warning" href="{% url 'edit_solicitacao' 'transferencia' transferencia.id %}">Editar</a>
                 </form>
             </td>
         </tr>
@@ -129,7 +123,7 @@
             
                 <div class="mb-3">
                     <label for="funcionario" class="form-label">Funcionário</label>
-                    <input type="text" class="form-control" id="editarFuncionario" name="funcionario" required>
+                    <input type="text" class="form-control" id="editarFuncionario" name="funcionario" readonly>
                 </div>
                 <div class="mb-3">
                     <label for="item" class="form-label">Item</label>
