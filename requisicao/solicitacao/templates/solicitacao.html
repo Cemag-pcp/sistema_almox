@@ -43,8 +43,12 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label for="id_requisicao-cc" class="form-label">Centro de custo:</label>
+                            <select id="id_requisicao-cc" class="form-select js-example-basic-single" name="requisicao-cc" required>
+                            </select>
+                        </div>
                     </div>
-                    <input type="hidden" id="id_requisicao-cc" name="requisicao-cc" required>
                     
                     <div class="row mb-3 justify-content-center">
                         <div class="col-md-6 col-lg-4">
@@ -60,9 +64,6 @@
                             {{form_requisicao.label}}
                             <label for="id_requisicao-classe_requisicao" class="form-label">Classe de Requisição:</label>
                             <select class="form-select" name="requisicao-classe_requisicao" id="id_requisicao-classe_requisicao" required>
-                                <option value="" selected>---------</option>
-                                <option value="Req p Consumo">Consumo</option>
-                                <option value="Req p Produção">Produção</option>
                             </select>
                         </div>
                     </div>
@@ -233,6 +234,13 @@
                     {% endfor %}
                 </select>
             </div>
+            <div id="campo-requisicao" class="mb-3 campo-alternativo-requisicao">
+                <div class="mb-3">
+                    <label for="id_requisicao-cc-novo-item" class="form-label">Centro de custo:</label>
+                    <select id="id_requisicao-cc-novo-item" class="form-select js-example-basic-single" name="requisicao-cc-novo-item" required>
+                    </select>
+                </div>
+            </div>
             <div class="mb-3">
                 <label for="id-codigo-item">Código</label>
                 <input name="id-codigo-item" type="text" id="id-codigo-item" class="form-control" placeholder="Digite o código do item">
@@ -286,8 +294,12 @@
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                callback(JSON.parse(xhr.responseText));
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    callback(JSON.parse(xhr.responseText));
+                } else {
+                    console.error('Erro na requisição AJAX. Status:', xhr.status);
+                }
             }
         };
         xhr.onerror = function() {
@@ -308,19 +320,42 @@
                 width: '100%'
             });
 
-            $(selectElement).on('change', function() {
+            // Use o evento 'select2:select' em vez de 'change'
+            $(selectElement).on('select2:select', function() {
                 var value = $(this).val();
                 if (value) {
                     ajax(ajaxUrl + encodeURIComponent(value), function(data) {
                         var updateElement = document.getElementById(updateElementId);
-                        if (data[dataField]) {
-                            updateElement.value = data[dataField];
+                        if (updateElement.tagName.toLowerCase() === 'select') {
+                            // Limpar opções existentes
+                            updateElement.options.length = 0;
+
+                            // Verificar se os dados retornados são uma lista
+                            if (Array.isArray(data[dataField])) {
+                                data[dataField].forEach(function(item) {
+                                    var option = document.createElement('option');
+                                    option.value = item.id;
+                                    option.text = item.nome;
+                                    updateElement.add(option);
+                                });
+                            } else {
+                                console.error('Dados retornados não são uma lista:', data[dataField]);
+                            }
                         } else {
-                            updateElement.value = '';
+                            if (data[dataField]) {
+                                updateElement.value = data[dataField];
+                            } else {
+                                updateElement.value = '';
+                            }
                         }
                     });
                 } else {
-                    document.getElementById(updateElementId).value = '';
+                    var updateElement = document.getElementById(updateElementId);
+                    if (updateElement.tagName.toLowerCase() === 'select') {
+                        updateElement.options.length = 0;
+                    } else {
+                        updateElement.value = '';
+                    }
                 }
             });
         }
@@ -352,6 +387,14 @@
             'classes'
         );
 
+        // Requisição - classe dentro do modal de novo item
+        initSelect2(
+            'id-funcionario-cadastro-item',
+            '{% url "get_cc_by_matricula" %}?matricula=',
+            'id_requisicao-cc-novo-item',
+            'cc'
+        );
+
         // Transferência - Funcionario
         initSelect2('id_transferencia-funcionario', '', '', '');
 
@@ -360,6 +403,9 @@
 
         // Transferência - Item
         initSelect2('id_transferencia-item', '', '', '');
+
+        // Classe de requisição - Item
+        initSelect2('id_requisicao-classe_requisicao', '', '', '');
 
     });
 </script>
@@ -413,6 +459,10 @@
         var tipoSolicitacaoInput = adicionarNovoItemModal.querySelector('#tipoSolicitacao');
         tipoSolicitacaoInput.value = tipoSolicitacao;
 
+        document.querySelectorAll('.campo-alternativo-requisicao').forEach(function(campo) {
+            campo.style.display = 'block';  // Esconde todos os campos alternativos
+        });
+
         document.querySelectorAll('.campo-alternativo').forEach(function(campo) {
             campo.style.display = 'none';  // Esconde todos os campos alternativos
             campo.querySelectorAll('input, select').forEach(function(input) {
@@ -422,6 +472,10 @@
 
         if (tipoSolicitacao === 'transferencia') {
             var campoTransferencia = document.getElementById('campo-transferencia');
+            var campoRequisicao = document.getElementById('campo-requisicao');
+
+            campoRequisicao.style.display = 'none';
+
             campoTransferencia.style.display = 'block';
             campoTransferencia.querySelector('select').setAttribute('required', 'required');  // Adiciona o atributo required ao campo visível
         }
@@ -444,28 +498,6 @@
 
         console.log('Cadastro enviado com sucesso');
 
-    });
-</script>
-
-<!-- Carregar classes para cada item -->
-
-<script>
-    document.getElementById('id_requisicao-item').addEventListener('change', function () {
-        var itemId = this.value;
-        var url = '{% url "ajax_carregar_classes" %}';
-        fetch(`${url}?item=${itemId}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                var classeSelect = document.getElementById('id_requisicao-classe_requisicao');
-                classeSelect.options.length = 0;
-                data.forEach(function(classe) {
-                    var option = document.createElement('option');
-                    option.value = classe.id;
-                    option.text = classe.nome;
-                    classeSelect.add(option);
-                });
-            });
     });
 </script>
 

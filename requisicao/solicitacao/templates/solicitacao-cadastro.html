@@ -39,15 +39,15 @@
                     {% csrf_token %}
 
                     {% if item.tipo_solicitacao == 'requisicao' %}
-                        <button class="badge rounded-pill btn btn-sm btn-primary" type="button" 
-                            name="add" data-tipo-cadastro="item" data-id="{{item.id}}" 
-                            onclick="prepararAdd(this);">Aprovar</button>
+                    <button class="badge rounded-pill btn btn-sm btn-primary" type="button" 
+                        name="add" data-tipo-cadastro="item" data-id="{{item.id}}" 
+                        onclick="prepararAdd(this, true);">Aprovar</button>
                     {% else %}
-                        <button class="badge rounded-pill btn btn-sm btn-primary" type="button" 
-                            name="add" data-tipo-cadastro="item" data-id="{{item.id}}" 
-                            onclick="prepararAdd(this);">Aprovar</button>    
-                    
+                    <button class="badge rounded-pill btn btn-sm btn-primary" type="button" 
+                        name="add" data-tipo-cadastro="item" data-id="{{item.id}}" 
+                        onclick="prepararAdd(this, false);">Aprovar</button>
                     {% endif %}
+
                     <input type="hidden" class="tipo-cadastro" name="tipo_cadastro" value="">
                     <input type="hidden" class="id" name="id" value="">
                     <button class="badge rounded-pill btn btn-sm btn-danger" type="submit" name="apagar" data-tipo-cadastro="item" data-id="{{item.id}}" onclick="return prepararApagar(this, 'form-solicitacao-item');">Apagar</button>
@@ -91,40 +91,6 @@
 </table>
 <br>
 
-<!-- Modal de Edição -->
-<div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editarModalLabel">Editar Solicitação</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editarForm" method="post" action="{% url 'processar_edicao' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="solicitacao_id" id="editarSolicitacaoId">
-                    <input type="hidden" name="tipo_solicitacao" id="editarTipoSolicitacao">
-                    <div class="mb-3">
-                        <label for="item" class="form-label">Item</label>
-                        <input type="text" class="form-control" id="editarItem" name="item" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="quantidade" class="form-label">Quantidade</label>
-                        <input type="number" class="form-control" id="editarQuantidade" name="quantidade" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editarDepositoDestino">Depósito destino</label>
-                        <input type="text" class="form-control" id="editarDepositoDestino" name="depositoDestino">
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="badge btn btn-sm btn-success">Salvar Alterações</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Modal de confirmação -->
 <div class="modal fade" id="confirmaModal" tabindex="-1" aria-labelledby="confirmaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -146,8 +112,8 @@
                             <label for="opcao" class="form-label">Escolha uma opção:</label>
                             <select class="form-select" id="opcao" name="opcao">
                                 <option value="" selected>Selecione</option>
-                                <option value="Req p Consumo">Req p Consumo</option>
-                                <option value="Req p Produção">Req p Produção</option>
+                                <option value="1">Req p Consumo</option>
+                                <option value="2">Req p Produção</option>
                             </select>
                         </div>
                     </div>
@@ -191,15 +157,17 @@
         form.querySelector('.tipo-cadastro').value = tipoCadastro;
         form.querySelector('.id').value = id;
 
+        // Inicialmente, oculta ambos os containers
+        document.getElementById("opcao-container").style.display = "none";
+        document.getElementById("transferencia-container").style.display = "none";
+
         // Verifica se a solicitação é do tipo 'requisicao'
         if (isRequisicao) {
-            // Exibe o modal com a seleção de opções (para 'requisicao')
-            document.getElementById("opcao-container").style.display = "block";
-            document.getElementById("transferencia-container").style.display = "none";
+            console.log("Exibindo select de opções para requisição");
+            document.getElementById("opcao-container").style.display = "block";  // Mostra o select
         } else {
-            // Oculta o campo de seleção de opções e exibe apenas o botão de confirmação
-            document.getElementById("opcao-container").style.display = "none";
-            document.getElementById("transferencia-container").style.display = "block";
+            console.log("Exibindo modal para transferência");
+            document.getElementById("transferencia-container").style.display = "block";  // Mostra confirmação simples
         }
 
         // Abre o modal de confirmação

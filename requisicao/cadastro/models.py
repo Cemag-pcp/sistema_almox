@@ -10,16 +10,15 @@ class Cc(models.Model):
 
         return f'{self.nome}'
     
-
 class Funcionario(models.Model):
 
     nome = models.CharField(max_length=100)
     matricula = models.CharField(max_length=5, unique=True)
-    cc = models.ForeignKey(Cc, on_delete=models.CASCADE, related_name='funcionario_cc')
+    cc = models.ManyToManyField(Cc, related_name='funcionario_cc')
 
     def __str__(self):
-
-        return f'{self.nome} - {self.matricula} - {self.cc.nome}'
+        cc_nomes = ', '.join([cc.nome for cc in self.cc.all()])
+        return f'{self.nome} - {self.matricula} - {cc_nomes}'
 
 class ClasseRequisicao(models.Model):
     nome = models.CharField(max_length=20, unique=True)
