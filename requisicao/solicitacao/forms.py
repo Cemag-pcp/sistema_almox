@@ -14,11 +14,13 @@ class SolicitacaoTransferenciaForm(forms.ModelForm):
 class SolicitacaoCadastroItemRequisicaoForm(forms.ModelForm):
     class Meta:
         model=SolicitacaoCadastroItem
-        fields=['codigo','descricao','quantidade', 'funcionario']
+        fields=['codigo','descricao','quantidade', 'funcionario','cc']
         widgets = {
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'descricao': forms.TextInput(attrs={'class': 'form-control'}),
             'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
+            'funcionario': forms.Select(attrs={'class': 'form-control'}),
+            'cc': forms.Select(attrs={'class': 'form-control'}),
         }
         
 class SolicitacaoCadastroItemTransferenciaForm(forms.ModelForm):
@@ -29,6 +31,8 @@ class SolicitacaoCadastroItemTransferenciaForm(forms.ModelForm):
             'codigo': forms.TextInput(attrs={'class': 'form-control'}),
             'descricao': forms.TextInput(attrs={'class': 'form-control'}),
             'quantidade': forms.NumberInput(attrs={'class': 'form-control'}),
+            'deposito_destino': forms.Select(attrs={'class': 'form-control'}),
+            'funcionario': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class SolicitacaoCadastroMatriculaForm(forms.ModelForm):
