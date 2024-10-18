@@ -528,6 +528,7 @@ def edit_solicitacao(request, tipo_solicitacao, requisicao_id):
             classe = item.classe_requisicao.all()  # Supondo que exista um campo 'classe_requisicao' na solicitação
             obs = solicitacao.obs  # Caso haja um campo 'observacao'
             quantidade = solicitacao.quantidade 
+            quantidade = str(quantidade).replace(',', '.')
 
             # Define o contexto a ser passado para o template
             context = {
@@ -562,6 +563,7 @@ def edit_solicitacao(request, tipo_solicitacao, requisicao_id):
             item_escolhido_codigo = solicitacao.item.codigo if solicitacao.item else None
             obs = solicitacao.obs  # Caso haja um campo 'observacao'
             quantidade = solicitacao.quantidade 
+            quantidade = str(quantidade).replace(',', '.')
             deposito_destino = solicitacao.deposito_destino.nome
             depositos = DepositoDestino.objects.all()
 

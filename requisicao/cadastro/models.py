@@ -17,8 +17,7 @@ class Funcionario(models.Model):
     cc = models.ManyToManyField(Cc, related_name='funcionario_cc')
 
     def __str__(self):
-        cc_nomes = ', '.join([cc.nome for cc in self.cc.all()])
-        return f'{self.nome} - {self.matricula} - {cc_nomes}'
+        return f'{self.nome} - {self.matricula}'
 
 class ClasseRequisicao(models.Model):
     nome = models.CharField(max_length=20, unique=True)

@@ -1,3 +1,4 @@
 .env
 antigo
 .venv
+db.sqlite3
