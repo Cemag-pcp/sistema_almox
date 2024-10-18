@@ -3,7 +3,9 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from django.contrib.auth.views import LogoutView
+from django.http import JsonResponse
 
 from solicitacao.models import SolicitacaoRequisicao, SolicitacaoTransferencia
 from solicitacao.forms import SolicitacaoRequisicaoForm, SolicitacaoTransferenciaForm
@@ -76,6 +78,48 @@ def lista_solicitacoes(request):
     }
 
     return render(request, "home/lista_solicitacoes.html", context)
+
+@login_required
+def dashboard(request):
+    requisicoes = SolicitacaoRequisicao.objects.filter(entregue_por=None)
+    transferencias = SolicitacaoTransferencia.objects.filter(entregue_por=None)
+
+    context = {
+        "requisicoes": requisicoes,
+        "transferencias": transferencias,
+    }
+
+    return render(request, "dashboard/dashboard.html", context)
+
+@login_required
+def atualizar_dados(request):
+    requisicoes = SolicitacaoRequisicao.objects.filter(entregue_por=None)
+    transferencias = SolicitacaoTransferencia.objects.filter(entregue_por=None)
+
+    # Crie uma lista personalizada para requisições
+    requisicoes_data = [
+        {
+            "funcionario": f"{req.funcionario.matricula} - {req.funcionario.nome}",
+            "item": f"{req.item.codigo} - {req.item.nome}",  # Supondo que 'nome' é o campo que contém o nome do item
+            "quantidade": req.quantidade,
+        }
+        for req in requisicoes
+    ]
+
+    # Crie uma lista personalizada para transferências
+    transferencias_data = [
+        {
+            "funcionario": f"{trans.funcionario.matricula} - {trans.funcionario.nome}",
+            "item": f"{trans.item.codigo} - {trans.item.nome}",  # Supondo que 'nome' é o campo que contém o nome do item
+            "quantidade": trans.quantidade,
+        }
+        for trans in transferencias
+    ]
+
+    return JsonResponse({
+        "requisicoes": requisicoes_data,
+        "transferencias": transferencias_data,
+    })
 
 def processar_edicao(request):
     if request.method == "POST":

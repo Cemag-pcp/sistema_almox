@@ -27,9 +27,9 @@ class ClasseRequisicao(models.Model):
 
 class ItensSolicitacao(models.Model):
     codigo = models.CharField(max_length=20, unique=True)
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=120)
     classe_requisicao = models.ManyToManyField(ClasseRequisicao)
-    unidade = models.CharField(max_length=10)
+    unidade = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return f'{self.codigo} - {self.nome}'
@@ -37,7 +37,8 @@ class ItensSolicitacao(models.Model):
 class ItensTransferencia(models.Model):
 
     codigo = models.CharField(max_length=20, unique=True)
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=120)
+    unidade = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
 

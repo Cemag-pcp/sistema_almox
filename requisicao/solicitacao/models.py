@@ -41,7 +41,7 @@ class SolicitacaoCadastroItem(models.Model):
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='cadastro_item')
     codigo = models.CharField(max_length=100, blank=True, null=True)                               
     descricao = models.CharField(max_length=100, blank=True, null=True)
-    quantidade = models.IntegerField()
+    quantidade = models.DecimalField(max_digits=10, decimal_places=2)
     deposito_destino = models.ForeignKey(DepositoDestino, on_delete=models.CASCADE, related_name='solicitacao_deposito_destino', null=True, blank=True)
     cc = models.ForeignKey(Cc, on_delete=models.CASCADE, related_name='cadastro_cc', blank=True, null=True)
     aprovado = models.BooleanField(default=False)
