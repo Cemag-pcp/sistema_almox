@@ -24,7 +24,7 @@
                     <div class="row mb-3 justify-content-center">
                         <div class="col-md-6">
                             <label for="id_requisicao-funcionario" class="form-label">Matrícula:</label>
-                            <input class="form-control" type="text" value="{{solicitante}}">
+                            <input class="form-control" type="text" value="{{solicitante}}" readonly>
                         </div>
                         <div class="col-md-6">
                             <label for="id_requisicao-cc" class="form-label">Centro de custo:</label>
@@ -65,7 +65,7 @@
                     <div class="row mb-3 justify-content-center">
                         <div class="col-md-6 col-lg-4">
                             <label for="id_requisicao-quantidade" class="form-label">Quantidade:</label>
-                            <input type="number" class="form-control" id="id_requisicao-quantidade" name="requisicao-quantidade" value="{{quantidade}}" required>
+                            <input type="number" class="form-control" id="id_requisicao-quantidade" name="requisicao-quantidade" value="{{quantidade}}" step="0.01" required>
                         </div>
                         <div class="col-md-6 col-lg-4">
                             <label for="unidade" class="form-label">Unidade:</label>
@@ -137,7 +137,7 @@
                     <div class="row mb-3 justify-content-center">
                         <div class="col-md-6 col-lg-4">
                             <label for="id_transferencia-quantidade" class="form-label">Quantidade:</label>
-                            <input class="form-control" id="id_transferencia-quantidade" name="transferencia-quantidade" value="{{quantidade}}" step="0.01" required>
+                            <input type="number" class="form-control" id="id_transferencia-quantidade" name="transferencia-quantidade" value="{{quantidade}}" step="0.01" required>
                         </div>
                     </div>
                 
