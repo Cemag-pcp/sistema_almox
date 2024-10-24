@@ -323,6 +323,8 @@
     // Função para inicializar select2 e adicionar evento change
     function initSelect2(selectElementId, ajaxUrl, updateElementId, dataField) {
         var selectElement = document.getElementById(selectElementId);
+        var updateElement = document.getElementById(updateElementId);
+
         if (selectElement) {
             $(selectElement).select2({
                 placeholder: "Selecione...",
@@ -335,9 +337,21 @@
             // Use o evento 'select2:select' em vez de 'change'
             $(selectElement).on('select2:select', function() {
                 var value = $(this).val();
+                var updateElement = document.getElementById(updateElementId);
+                updateElement.value = "";
+                if (updateElement.tagName.toLowerCase() === 'select') {
+                    updateElement.options.length = 0;
+                    var placeholderOption = document.createElement('option');
+                    placeholderOption.value = ""; // Valor vazio para o placeholder
+                    placeholderOption.text = "Carregando...";
+                    placeholderOption.disabled = true; // Não pode ser selecionado
+                    placeholderOption.selected = true; // Define como selecionado
+                    updateElement.add(placeholderOption);
+                } else {
+                    updateElement.setAttribute('placeholder','Carregando...')
+                }
                 if (value) {
                     ajax(ajaxUrl + encodeURIComponent(value), function(data) {
-                        var updateElement = document.getElementById(updateElementId);
                         if (updateElement.tagName.toLowerCase() === 'select') {
                             // Limpar opções existentes
                             updateElement.options.length = 0;

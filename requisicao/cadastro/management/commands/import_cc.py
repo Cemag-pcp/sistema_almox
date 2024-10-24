@@ -1,6 +1,6 @@
 import csv
 from django.core.management.base import BaseCommand
-from cadastro.models import ItensTransferencia
+from cadastro.models import ItensTransferencia,Cc
 
 class Command(BaseCommand):
     help = 'Importa itens de transferência do arquivo CSV'
@@ -13,7 +13,7 @@ class Command(BaseCommand):
                 codigo = row['codigo']
                 nome = row['nome']
 
-                item, created = ItensTransferencia.objects.get_or_create(
+                item, created = Cc.objects.get_or_create(
                     codigo=codigo,
                     defaults={'nome': nome}
                 )
