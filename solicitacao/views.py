@@ -302,10 +302,9 @@ def gerir_solicitacoes(request):
     mensagem_erro = None  # Variável para armazenar a mensagem de erro
 
     if request.method == 'POST':
-
+        print(request.POST)
         tipo_cadastro = request.POST.get("tipo_cadastro")
         solicitacao_id = request.POST.get('id')
-        
 
         if "add" in request.POST:
             
