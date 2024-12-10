@@ -1,0 +1,38 @@
+##### Historico de itens que deram problema na transferencia #####
+
+select  ss.id,
+ 		concat(ci.codigo, ' - ', ci.nome) as item,
+ 		ss.quantidade,
+ 		ss.data_solicitacao,
+ 		ss.data_entrega,
+ 		cd.nome as almox,
+ 		concat(cf.matricula, ' - ',cf.nome) as solicitante,
+ 		concat(co.matricula, ' - ', co.nome),
+ 		ss.rpa 
+from almoxarifado_v2.solicitacao_solicitacaotransferencia ss 
+join almoxarifado_v2.cadastro_depositodestino cd on cd.id = ss.deposito_destino_id 
+join almoxarifado_v2.cadastro_funcionario cf on cf.id = ss.funcionario_id 
+join almoxarifado_v2.cadastro_itenstransferencia ci on ci.id = ss.item_id 
+join almoxarifado_v2.cadastro_operador co on co.id = ss.entregue_por_id 
+where ss.rpa != 'OK' or ss.rpa IS NULL
+
+##### Historico de itens que deram problema na requisicao #####
+
+select  ss.id,
+ 		concat(ci.codigo, ' - ', ci.nome) as item,
+ 		ss.quantidade,
+ 		ss.obs,
+ 		cc.nome as classe_requisicao,
+ 		ss.data_solicitacao,
+ 		ss.data_entrega,
+ 		concat(cf.matricula, ' - ',cf.nome) as solicitante,
+ 		cc2.nome as cc,
+ 		concat(co.matricula, ' - ', co.nome),
+ 		ss.rpa 
+from almoxarifado_v2.solicitacao_solicitacaorequisicao ss 
+join almoxarifado_v2.cadastro_funcionario cf on cf.id = ss.funcionario_id 
+join almoxarifado_v2.cadastro_classerequisicao cc on cc.id = ss.classe_requisicao_id 
+join almoxarifado_v2.cadastro_itenssolicitacao ci on ci.id = ss.item_id 
+join almoxarifado_v2.cadastro_operador co on co.id = ss.entregue_por_id 
+join almoxarifado_v2.cadastro_cc cc2 on cc2.id = ss.cc_id  
+where ss.rpa != 'OK' or ss.rpa IS null and data_entrega notnull 
