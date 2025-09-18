@@ -2,7 +2,7 @@ from django.db import models
 
 from cadastro.models import *
 
-import datetime
+from datetime import datetime
 
 class SolicitacaoRequisicao(models.Model):
     funcionario = models.ForeignKey(Funcionario, on_delete=models.CASCADE, related_name='requisicao_funcionario')
